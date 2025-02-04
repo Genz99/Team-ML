@@ -1,6 +1,3 @@
-setwd("/Users/nicokruse/Documents/Uni/M.Sc. Psy/Semester III/Advanced Research Methods and Statistical Computing/Projekt_ML")
-# setwd("/Users/maria/OneDrive/Uni/Master/3. Semester/ARMS Seminar")
-# setwd("C:/Users/fiona/Master/ARMS/Team ML")
 
 # _______________________________________________
 #
