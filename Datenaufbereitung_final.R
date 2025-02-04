@@ -71,9 +71,6 @@ data_final$citations_first_author[data_final$citations_first_author > 18734] <- 
 # suprising_results
 data_final$suprising_result <- as.numeric(data_pre$Surprising.result..O.)
 
-# conceptual_replications
-data_final$conceptual_replications <- data_pre$Internal.conceptual.replications..O.
-
 # reported_p_value (3 Kategorien)
 data_final$reported_p_value <- data_pre$Reported.P.value..O.
 
@@ -179,6 +176,9 @@ Präd_b1 <- names(data_final[!(names(data_final) %in% c("replicate", "study_titl
 data_final$methodology_expertise_required <- factor(data_pre$Methodology.expertise.required..O., 
                                                     levels = c("No expertise required", "Slight expertise required", "Moderate expertise required", "Strong expertise required", "Extreme expertise required"))
 data_final$methodology_expertise_required <- as.numeric(data_final$methodology_expertise_required)
+
+# conceptual_replications
+data_final$conceptual_replications <- data_pre$Internal.conceptual.replications..O.
 
 # conceptual_replications_success
 data_final$conceptual_replications_success <- data_pre$Successful.conceptual.replications..O./data_pre$Internal.conceptual.replications..O. # Anzahl erfolgreiche Replikationen / Anzahl durchgefuehrter Repliaktionen
