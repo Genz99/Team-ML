@@ -160,6 +160,9 @@ data_final$min_power_quotient <- data_pre$N..O./ data_pre$X80..power
 # effsize (umgewandelt in r)
 data_final$effsize <- data_pre$T_r..O.
 
+# conceptual_replications
+data_final$conceptual_replications <- data_pre$Internal.conceptual.replications..O.
+
 # Praediktorenblock 1
 Präd_b1 <- names(data_final[!(names(data_final) %in% c("replicate", "study_title"))])
 
@@ -173,9 +176,6 @@ Präd_b1 <- names(data_final[!(names(data_final) %in% c("replicate", "study_titl
 data_final$methodology_expertise_required <- factor(data_pre$Methodology.expertise.required..O., 
                                                     levels = c("No expertise required", "Slight expertise required", "Moderate expertise required", "Strong expertise required", "Extreme expertise required"))
 data_final$methodology_expertise_required <- as.numeric(data_final$methodology_expertise_required)
-
-# conceptual_replications
-data_final$conceptual_replications <- data_pre$Internal.conceptual.replications..O.
 
 # conceptual_replications_success
 data_final$conceptual_replications_success <- data_pre$Successful.conceptual.replications..O./data_pre$Internal.conceptual.replications..O. # Anzahl erfolgreiche Replikationen / Anzahl durchgefuehrter Repliaktionen
