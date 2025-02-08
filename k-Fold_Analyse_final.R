@@ -20,20 +20,20 @@ for (i in 1:100) { # Outer Loop mit i = Iterationen
                                     p = .8, # 80% Trainingsdaten; 20% Testdaten
                                     list = FALSE,
                                     times = 1)
-  train_dat <- na.omit(data_final[ trainIndex, ]) # Speichern der beiden Partitionen
-  test_dat  <- na.omit(data_final[-trainIndex, ]) # na.omit entfernt alle Missings
+  train_dat <- (data_final[ trainIndex, ]) # Speichern der beiden Partitionen
+  test_dat  <- (data_final[-trainIndex, ]) #  entfernt alle Missings
   
   
   # Pre-Processing: Transformation der Daten nach Partitionierung um Data-Leakage zu vermeiden
-  preProcValues_train <- preProcess(train_dat, method = c("center", "scale")) # festlegen, dass die Trainingsdaten z-Standardisiert werden
+  preProcValues_train <- preProcess(train_dat, method = c("knnImpute")) # Trainingsdaten: knn-Impute (gleichzeitig z-Standardisiert)
   train_dat <- predict(preProcValues_train, train_dat) # speichern der z-Standardisierten Trainingsdaten
   
-  preProcValues_test <- preProcess(test_dat, method = c("center", "scale")) # festlegen, dass die Testdaten z-Standardisiert werden
+  preProcValues_test <- preProcess(test_dat, method = c("knnImpute")) # Testdaten: knn-Impute (gleichzeitig z-Standardisiert)
   test_dat <- predict(preProcValues_test, test_dat) # speichern der z-Standardisierten Testsdaten
   
 
-  grid <- expand.grid(alpha = seq(0, 1, length = 11),           # GridSearch um Hyperparameter zu optimieren
-                      lambda = seq(0.001, 0.1, length = 21))    # verschiede Sequenzen getestet (siehe Anhang)
+  grid <- expand.grid(alpha = seq(0, 1, length = 11),
+                      lambda = seq(0.001, 0.1, length = 21)) # Art des Hyperparametertunings
 
   #### Modelle ####
   
@@ -56,17 +56,15 @@ for (i in 1:100) { # Outer Loop mit i = Iterationen
                                             classProbs = TRUE, # Klassenwahrscheinlichkeiten 
                                             savePredictions = TRUE), # Vorhersagen speichern 
                    
-                   tuneGrid = grid
-                   # tuneLength = 21  -> als Alternative für GridSearch genutzt, alternativ auch tuneLength = 50 (random search)
-                   )
+                   tuneGrid = grid)
   
   
   # Das anhand der Trainingsdaten trainierte Modell zur Vorhersagend des Testdatensatzes verwenden
   pred_train_b1 <- predict(enet_b1, train_dat) # Trainiertes Modell zur Vorhersage der Trainingsdaten verwenden
   pred_test_b1 <- predict(enet_b1, test_dat) # Trainiertes Modell zur Vorhersage der Testsdaten verwenden
   
-  cm_train_b1 <- confusionMatrix(pred_train_b1, train_dat$replicate) # Konfusionsmatrix Trainingsdaten
-  cm_test_b1 <- confusionMatrix(pred_test_b1, test_dat$replicate) # Konfusionsmatrix Testdaten
+  cm_train_b1 <- confusionMatrix(pred_train_b1, train_dat$replicate, positive = "yes") # Konfusionsmatrix Trainingsdaten
+  cm_test_b1 <- confusionMatrix(pred_test_b1, test_dat$replicate, positive = "yes") # Konfusionsmatrix Testdaten
   
   # Speichern der Ergebnisse jeder Iteration für Block 1
   res_b1 <- rbind(res_b1, cbind('iter' = i,
@@ -100,8 +98,8 @@ for (i in 1:100) { # Outer Loop mit i = Iterationen
   pred_train_b2 <- predict(enet_b2, train_dat)
   pred_test_b2 <- predict(enet_b2, test_dat)
   
-  cm_train_b2 <- confusionMatrix(pred_train_b2, train_dat$replicate)
-  cm_test_b2 <- confusionMatrix(pred_test_b2, test_dat$replicate)
+  cm_train_b2 <- confusionMatrix(pred_train_b2, train_dat$replicate, positive = "yes")
+  cm_test_b2 <- confusionMatrix(pred_test_b2, test_dat$replicate, positive = "yes")
   
   # Speichern der Ergebnisse jeder Iteration
   res_b2 <- rbind(res_b2, cbind('iter' = i,
@@ -133,8 +131,8 @@ for (i in 1:100) { # Outer Loop mit i = Iterationen
   pred_train_b3 <- predict(enet_b3, train_dat)
   pred_test_b3 <- predict(enet_b3, test_dat)
   
-  cm_train_b3 <- confusionMatrix(pred_train_b3, train_dat$replicate)
-  cm_test_b3 <- confusionMatrix(pred_test_b3, test_dat$replicate)
+  cm_train_b3 <- confusionMatrix(pred_train_b3, train_dat$replicate, positive = "yes")
+  cm_test_b3 <- confusionMatrix(pred_test_b3, test_dat$replicate, positive = "yes")
   
   # Speichern der Ergebnisse jeder Iteration
   res_b3 <- rbind(res_b3, cbind('iter' = i,
@@ -168,8 +166,8 @@ for (i in 1:100) { # Outer Loop mit i = Iterationen
   pred_train_b1_b2_b3 <- predict(enet_b1_b2_b3, train_dat)
   pred_test_b1_b2_b3 <- predict(enet_b1_b2_b3, test_dat)
   
-  cm_train_b1_b2_b3 <- confusionMatrix(pred_train_b1_b2_b3, train_dat$replicate)
-  cm_test_b1_b2_b3 <- confusionMatrix(pred_test_b1_b2_b3, test_dat$replicate)
+  cm_train_b1_b2_b3 <- confusionMatrix(pred_train_b1_b2_b3, train_dat$replicate, positive = "yes")
+  cm_test_b1_b2_b3 <- confusionMatrix(pred_test_b1_b2_b3, test_dat$replicate, positive = "yes")
   
   # Speichern der Ergebnisse jeder Iteration
   res_b1_b2_b3 <- rbind(res_b1_b2_b3, cbind('iter' = i,
@@ -194,21 +192,21 @@ res_c_b1_b2_b3 <- NULL
 
 
 
-for (i in 1:100) { # Outer Loop mit i = Iterationen
+for (i in 1:1) { # Outer Loop mit i = Iterationen
   print(paste0(i, ". Iter"))
   
-  set.seed(20190930+i) # Seed gewährleistet Reproduzierbarkeit der Ergebnisse
+  set.seed(20190930+70) # Seed gewährleistet Reproduzierbarkeit der Ergebnisse
   
   trainIndex <- createDataPartition(data_final$replicate, # zufällige Partitionierung des Datensatzes in Trainings- und Testdatensatz
                                     p = .8, # 80% Trainingsdaten; 20% Testdaten
                                     list = FALSE,
                                     times = 1)
-  train_dat <- na.omit(data_final[ trainIndex, ]) # Speichern der beiden Partitionen
-  test_dat  <- na.omit(data_final[-trainIndex, ]) # na.omit entfernt alle Missings
+  train_dat <- (data_final[ trainIndex, ]) # Speichern der beiden Partitionen
+  test_dat  <- (data_final[-trainIndex, ]) #  entfernt alle Missings
   
-  grid <- expand.grid(.cp = seq(.01, .10, .001)) # GridSearch um Hyperparameter zu optimieren
-                                                 # verschiede Sequenzen getestet (siehe Anhang)
-  # für minsplit, minbucket & maxdepth werden Defaults verwendet 
+  
+  # Grid Search wird bei Verfahren mit mehr als einem Hyperparameter vernwendet
+  grid <- expand.grid(.cp = seq(.01, .10, .001)) # für minsplit, minbucket & maxdepth werden Defaults verwendet 
   
   
   #### Modelle ####
@@ -224,7 +222,6 @@ for (i in 1:100) { # Outer Loop mit i = Iterationen
                    metric = "ROC", # ROC bzw. area under the curve (AUC) als Metrik zur Bewertung von Klassifikationsfragestellungen
                    method = "rpart", # Methode für Decision Trees
                    tuneGrid = grid, # zuvor spezifiziertes TuneGrid wählen
-                   # tuneLength = 21  -> als Alternative für GridSearch genutzt, alternativ auch tuneLength = 50 (random search)
                    trControl=trainControl(method = "cv", # k-fold Cross-Validation
                                           number = 10, # k = 10
                                           classProbs = TRUE, # Klassenwahrscheinlichkeiten
@@ -235,8 +232,8 @@ for (i in 1:100) { # Outer Loop mit i = Iterationen
   pred_train_c_b1 <- predict(cart_b1, train_dat) # Trainiertes Modell zur Vorhersage der Trainingsdaten verwenden
   pred_test_c_b1 <- predict(cart_b1, test_dat) # Trainiertes Modell zur Vorhersage der Testsdaten verwenden
   
-  cm_train_c_b1 <- confusionMatrix(pred_train_c_b1, train_dat$replicate) # Konfusionsmatrix Trainingsdaten
-  cm_test_c_b1 <- confusionMatrix(pred_test_c_b1, test_dat$replicate) # Konfusionsmatrix Testdaten
+  cm_train_c_b1 <- confusionMatrix(pred_train_c_b1, train_dat$replicate, positive = "yes") # Konfusionsmatrix Trainingsdaten
+  cm_test_c_b1 <- confusionMatrix(pred_test_c_b1, test_dat$replicate, positive = "yes") # Konfusionsmatrix Testdaten
   
   # Speichern der Ergebnisse jeder Iteration für Block 1
   res_c_b1 <- rbind(res_c_b1, cbind('iter' = i,
@@ -266,8 +263,8 @@ for (i in 1:100) { # Outer Loop mit i = Iterationen
   pred_train_c_b2 <- predict(cart_b2, train_dat)
   pred_test_c_b2 <- predict(cart_b2, test_dat)
   
-  cm_train_c_b2 <- confusionMatrix(pred_train_c_b2, train_dat$replicate)
-  cm_test_c_b2 <- confusionMatrix(pred_test_c_b2, test_dat$replicate)
+  cm_train_c_b2 <- confusionMatrix(pred_train_c_b2, train_dat$replicate, positive = "yes")
+  cm_test_c_b2 <- confusionMatrix(pred_test_c_b2, test_dat$replicate, positive = "yes")
   
   # Speichern der Ergebnisse jeder Iteration
   res_c_b2 <- rbind(res_c_b2, cbind('iter' = i,
@@ -299,8 +296,8 @@ for (i in 1:100) { # Outer Loop mit i = Iterationen
   pred_train_c_b3 <- predict(cart_b3, train_dat)
   pred_test_c_b3 <- predict(cart_b3, test_dat)
   
-  cm_train_c_b3 <- confusionMatrix(pred_train_c_b3, train_dat$replicate)
-  cm_test_c_b3 <- confusionMatrix(pred_test_c_b3, test_dat$replicate)
+  cm_train_c_b3 <- confusionMatrix(pred_train_c_b3, train_dat$replicate, positive = "yes")
+  cm_test_c_b3 <- confusionMatrix(pred_test_c_b3, test_dat$replicate, positive = "yes")
   
   # Speichern der Ergebnisse jeder Iteration
   res_c_b3 <- rbind(res_c_b3, cbind('iter' = i,
@@ -332,8 +329,8 @@ for (i in 1:100) { # Outer Loop mit i = Iterationen
   pred_train_c_b1_b2_b3 <- predict(cart_b1_b2_b3, train_dat)
   pred_test_c_b1_b2_b3 <- predict(cart_b1_b2_b3, test_dat)
   
-  cm_train_c_b1_b2_b3 <- confusionMatrix(pred_train_c_b1_b2_b3, train_dat$replicate)
-  cm_test_c_b1_b2_b3 <- confusionMatrix(pred_test_c_b1_b2_b3, test_dat$replicate)
+  cm_train_c_b1_b2_b3 <- confusionMatrix(pred_train_c_b1_b2_b3, train_dat$replicate, positive = "yes")
+  cm_test_c_b1_b2_b3 <- confusionMatrix(pred_test_c_b1_b2_b3, test_dat$replicate, positive = "yes")
   
   # Speichern der Ergebnisse jeder Iteration
   res_c_b1_b2_b3 <- rbind(res_c_b1_b2_b3, cbind('iter' = i,
