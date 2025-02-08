@@ -4,14 +4,14 @@
 #
 # ______________________________________________________________________________
 
+
 res_b1 <- NULL # Ergbnisobjekte der Prädiktorenblöcke außerhalb des Loops erstellen
 res_b2 <- NULL # b1 = Block; b2 = Block 2; b3 = Block 3, b1_b2_b3 = alle Blöcke
 res_b3 <- NULL
 res_b1_b2_b3 <- NULL
 
 
-
-for (i in 1:5) { # Outer Loop mit i = Iterationen
+for (i in 1:100) { # Outer Loop 
   print(paste0(i, ". Iter"))
   
   set.seed(20190930+i) # Seed gewährleistet Reproduzierbarkeit der Ergebnisse
@@ -32,8 +32,8 @@ for (i in 1:5) { # Outer Loop mit i = Iterationen
   test_dat <- predict(preProcValues_test, test_dat) # speichern der z-Standardisierten Testsdaten
   
 
-  grid <- expand.grid(alpha = seq(0, 1, length = 11),
-                      lambda = seq(0.001, 0.1, length = 21)) # Art des Hyperparametertunings
+  # grid <- expand.grid(alpha = seq(0, 1, length = 11),
+  #                      lambda = seq(0.001, 0.1, length = 21)) # Art des Hyperparametertunings
 
   #### Modelle ####
   
@@ -56,7 +56,8 @@ for (i in 1:5) { # Outer Loop mit i = Iterationen
                                             classProbs = TRUE, # Klassenwahrscheinlichkeiten 
                                             savePredictions = TRUE), # Vorhersagen speichern 
                    
-                   tuneGrid = grid)
+                   tuneLength = 21)
+                   # tuneGrid = grid)
   
   
   # Das anhand der Trainingsdaten trainierte Modell zur Vorhersagend des Testdatensatzes verwenden
@@ -92,7 +93,8 @@ for (i in 1:5) { # Outer Loop mit i = Iterationen
                                             summaryFunction = mnLogLoss,
                                             classProbs = TRUE,
                                             savePredictions = TRUE),
-                   tuneGrid = grid)
+                   tuneLength = 21)
+                   # tuneGrid = grid)
   
   # Vorhersage anhand des trainierten Modells
   pred_train_b2 <- predict(enet_b2, train_dat)
@@ -125,7 +127,8 @@ for (i in 1:5) { # Outer Loop mit i = Iterationen
                                             summaryFunction = mnLogLoss,
                                             classProbs = TRUE,
                                             savePredictions = TRUE),
-                   tuneGrid = grid)
+                   tuneLength = 21)
+                   # tuneGrid = grid)
   
   # Vorhersage anhand des trainierten Modells
   pred_train_b3 <- predict(enet_b3, train_dat)
@@ -160,7 +163,8 @@ for (i in 1:5) { # Outer Loop mit i = Iterationen
                                             summaryFunction = mnLogLoss,
                                             classProbs = TRUE,
                                             savePredictions = TRUE),
-                   tuneGrid = grid)
+                   tuneLength = 21)
+                   # tuneGrid = grid)
   
   # Vorhersage anhand des trainierten Modells
   pred_train_b1_b2_b3 <- predict(enet_b1_b2_b3, train_dat)
@@ -185,14 +189,14 @@ for (i in 1:5) { # Outer Loop mit i = Iterationen
 #
 # ______________________________________________________________________________
 
+
 res_c_b1 <- NULL # Ergbnisobjekte der Prädiktorenblöcke außerhalb des Loops erstellen
 res_c_b2 <- NULL # b1 = Block; b2 = Block 2; b3 = Block 3, b1_b2_b3 = alle Blöcke
 res_c_b3 <- NULL
 res_c_b1_b2_b3 <- NULL
 
 
-
-for (i in 1:100) { # Outer Loop mit i = Iterationen
+for (i in 1:100) { # Outer Loop 
   print(paste0(i, ". Iter"))
   
   set.seed(20190930+i) # Seed gewährleistet Reproduzierbarkeit der Ergebnisse
@@ -204,8 +208,9 @@ for (i in 1:100) { # Outer Loop mit i = Iterationen
   train_dat <- (data_final[ trainIndex, ]) # Speichern der beiden Partitionen
   test_dat  <- (data_final[-trainIndex, ]) #  entfernt alle Missings
   
+  
   # Grid Search wird bei Verfahren mit mehr als einem Hyperparameter vernwendet
-  grid <- expand.grid(.cp = seq(.01, .10, .001)) # für minsplit, minbucket & maxdepth werden Defaults verwendet 
+  grid <- expand.grid(.cp = seq(.01, .10, .001))
   
   
   #### Modelle ####
@@ -221,12 +226,16 @@ for (i in 1:100) { # Outer Loop mit i = Iterationen
                    metric = "ROC", # ROC bzw. area under the curve (AUC) als Metrik zur Bewertung von Klassifikationsfragestellungen
                    method = "rpart", # Methode für Decision Trees
                    tuneGrid = grid, # zuvor spezifiziertes TuneGrid wählen
+                   
                    trControl=trainControl(method = "cv", # k-fold Cross-Validation
                                           number = 10, # k = 10
                                           classProbs = TRUE, # Klassenwahrscheinlichkeiten
                                           summaryFunction = twoClassSummary, # Metriken für binäre Klassifikation
-                                          savePredictions = TRUE), # Vorhersagen speichern
+                                          savePredictions = TRUE),
+                                          # search = "random"), # Random Search
+                   # tuneLength = 210,
                    na.action = na.pass) # behält Missings und erlaubt Surrogat-Splits
+  
   
   # Das anhand der Trainingsdaten trainierte Modell zur Vorhersagend des Testdatensatzes verwenden
   pred_train_c_b1 <- predict(cart_b1, train_dat, na.action = na.pass) # Trainiertes Modell zur Vorhersage der Trainingsdaten verwenden
@@ -253,11 +262,14 @@ for (i in 1:100) { # Outer Loop mit i = Iterationen
                    metric = "ROC",   
                    method = "rpart",
                    tuneGrid = grid,
+                   
                    trControl=trainControl(method = "cv",
                                           number = 10,
                                           classProbs = TRUE,
                                           summaryFunction = twoClassSummary,
                                           savePredictions = TRUE),
+                                          # search = "random"),
+                   # tuneLength = 210,
                    na.action = na.pass)
   
   # Vorhersage anhand des trainierten Modells
@@ -286,11 +298,14 @@ for (i in 1:100) { # Outer Loop mit i = Iterationen
                    metric = "ROC",   
                    method = "rpart",
                    tuneGrid = grid,
+                   
                    trControl=trainControl(method = "cv",
                                           number = 10,
                                           classProbs = TRUE,
                                           summaryFunction = twoClassSummary,
                                           savePredictions = TRUE),
+                                          # search = "random"),
+                   # tuneLength = 210,
                    na.action = na.pass)
   
   
@@ -320,11 +335,14 @@ for (i in 1:100) { # Outer Loop mit i = Iterationen
                          metric = "ROC",   
                          method = "rpart",
                          tuneGrid = grid,
+                         
                          trControl=trainControl(method = "cv",
                                                 number = 10,
                                                 classProbs = TRUE,
                                                 summaryFunction = twoClassSummary,
                                                 savePredictions = TRUE),
+                                                # search = "random"),
+                         # tuneLength = 210,
                          na.action = na.pass)
   
   
@@ -343,7 +361,6 @@ for (i in 1:100) { # Outer Loop mit i = Iterationen
                                     'Specificity' = c(mean(cm_train_c_b1_b2_b3$byClass['Specificity']), mean(cm_test_c_b1_b2_b3$byClass['Specificity']))))
   
 }
-
 
 
 # ______________________________________________________________________________
@@ -462,7 +479,7 @@ rpart.plot(cart_b2$finalModel, # Visualisierung
            box.palette = "GnRd")
 
 # Hyperparameter
-cart_b2$finalModel$cp
+cart_b2$finalModel$cp  
 cart_b2$finalModel$control$minsplit
 cart_b2$finalModel$control$minbucket
 cart_b2$finalModel$control$maxdepth   
