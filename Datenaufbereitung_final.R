@@ -97,7 +97,7 @@ data_final$reported_p_value[data_final$reported_p_value == "prep = .97"] <- "0.0
 data_final$reported_p_value[data_final$reported_p_value == "prep = .99"] <- "0.001002042"
 
 # "X" auf NA setzen
-data_final$reported_p_value[data_final$reported_p_value == "X"] <- ""
+data_final$reported_p_value[data_final$reported_p_value == "X"] <- "<.05"
 
 # Erstellen von 3 Kategorien
 data_final$reported_p_value[data_final$reported_p_value == "<.00001"] <- "<.01"
