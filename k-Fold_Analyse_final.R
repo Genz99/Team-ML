@@ -195,7 +195,7 @@ res_c_b1_b2_b3 <- NULL
 for (i in 1:100) { # Outer Loop mit i = Iterationen
   print(paste0(i, ". Iter"))
   
-  set.seed(20190930+70) # Seed gewährleistet Reproduzierbarkeit der Ergebnisse
+  set.seed(20190930+i) # Seed gewährleistet Reproduzierbarkeit der Ergebnisse
   
   trainIndex <- createDataPartition(data_final$replicate, # zufällige Partitionierung des Datensatzes in Trainings- und Testdatensatz
                                     p = .8, # 80% Trainingsdaten; 20% Testdaten
@@ -437,8 +437,6 @@ enet_b1_b2_b3$bestTune # Hyperparameter
 
 vip(cart_b1, num_features = 20)
 
-varImp(cart_b1, lambda = enet_b1$lambda.min)
-
 rpart.plot(cart_b1$finalModel, # Visualisierung
            fallen.leaves = TRUE,
            box.palette = "GnRd")
@@ -458,8 +456,6 @@ cart_b1$finalModel$control$maxdepth
     round(., 3) %>% rename(Split = mod_b2))
 
 vip(cart_b2, num_features = 20)
-
-varImp(cart_b2, lambda = enet_b2$lambda.min)
 
 rpart.plot(cart_b2$finalModel, # Visualisierung
            fallen.leaves = TRUE,
@@ -481,8 +477,6 @@ cart_b2$finalModel$control$maxdepth
 
 vip(cart_b3, num_features = 20)
 
-varImp(cart_b3, lambda = enet_b3$lambda.min)
-
 rpart.plot(cart_b3$finalModel, # Visualisierung
            fallen.leaves = TRUE,
            box.palette = "GnRd")
@@ -502,8 +496,6 @@ cart_b3$finalModel$control$maxdepth
     round(., 3) %>% rename(Split = mod_b1_b2_b3))
 
 vip(cart_b1_b2_b3, num_features = 20)
-
-varImp(cart_b1_b2_b3, lambda = enet_b1_b2_b3$lambda.min)
 
 rpart.plot(cart_b1_b2_b3$finalModel, # Visualisierung
            fallen.leaves = TRUE,
@@ -532,6 +524,4 @@ r$Mod <- c("Enet_b1", "Enet_b1","CART_b1","CART_b1",
            "Enet_b1_b2_b3", "Enet_b1_b2_b3", "CART_b1_b2_b3", "CART_b1_b2_b3") 
 r <- r[, c(ncol(r), 1:(ncol(r) - 1))]
 
-
 print(r)
-
