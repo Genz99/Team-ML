@@ -11,7 +11,7 @@ res_b1_b2_b3 <- NULL
 
 
 
-for (i in 1:100) { # Outer Loop mit i = Iterationen
+for (i in 1:5) { # Outer Loop mit i = Iterationen
   print(paste0(i, ". Iter"))
   
   set.seed(20190930+i) # Seed gewährleistet Reproduzierbarkeit der Ergebnisse
@@ -192,7 +192,7 @@ res_c_b1_b2_b3 <- NULL
 
 
 
-for (i in 1:1) { # Outer Loop mit i = Iterationen
+for (i in 1:100) { # Outer Loop mit i = Iterationen
   print(paste0(i, ". Iter"))
   
   set.seed(20190930+70) # Seed gewährleistet Reproduzierbarkeit der Ergebnisse
@@ -203,7 +203,6 @@ for (i in 1:1) { # Outer Loop mit i = Iterationen
                                     times = 1)
   train_dat <- (data_final[ trainIndex, ]) # Speichern der beiden Partitionen
   test_dat  <- (data_final[-trainIndex, ]) #  entfernt alle Missings
-  
   
   # Grid Search wird bei Verfahren mit mehr als einem Hyperparameter vernwendet
   grid <- expand.grid(.cp = seq(.01, .10, .001)) # für minsplit, minbucket & maxdepth werden Defaults verwendet 
@@ -226,11 +225,12 @@ for (i in 1:1) { # Outer Loop mit i = Iterationen
                                           number = 10, # k = 10
                                           classProbs = TRUE, # Klassenwahrscheinlichkeiten
                                           summaryFunction = twoClassSummary, # Metriken für binäre Klassifikation
-                                          savePredictions = TRUE)) # Vorhersagen speichern
+                                          savePredictions = TRUE), # Vorhersagen speichern
+                   na.action = na.pass) # behält Missings und erlaubt Surrogat-Splits
   
   # Das anhand der Trainingsdaten trainierte Modell zur Vorhersagend des Testdatensatzes verwenden
-  pred_train_c_b1 <- predict(cart_b1, train_dat) # Trainiertes Modell zur Vorhersage der Trainingsdaten verwenden
-  pred_test_c_b1 <- predict(cart_b1, test_dat) # Trainiertes Modell zur Vorhersage der Testsdaten verwenden
+  pred_train_c_b1 <- predict(cart_b1, train_dat, na.action = na.pass) # Trainiertes Modell zur Vorhersage der Trainingsdaten verwenden
+  pred_test_c_b1 <- predict(cart_b1, test_dat, na.action = na.pass) # Trainiertes Modell zur Vorhersage der Testsdaten verwenden
   
   cm_train_c_b1 <- confusionMatrix(pred_train_c_b1, train_dat$replicate, positive = "yes") # Konfusionsmatrix Trainingsdaten
   cm_test_c_b1 <- confusionMatrix(pred_test_c_b1, test_dat$replicate, positive = "yes") # Konfusionsmatrix Testdaten
@@ -257,11 +257,12 @@ for (i in 1:1) { # Outer Loop mit i = Iterationen
                                           number = 10,
                                           classProbs = TRUE,
                                           summaryFunction = twoClassSummary,
-                                          savePredictions = TRUE))
+                                          savePredictions = TRUE),
+                   na.action = na.pass)
   
   # Vorhersage anhand des trainierten Modells
-  pred_train_c_b2 <- predict(cart_b2, train_dat)
-  pred_test_c_b2 <- predict(cart_b2, test_dat)
+  pred_train_c_b2 <- predict(cart_b2, train_dat, na.action = na.pass)
+  pred_test_c_b2 <- predict(cart_b2, test_dat, na.action = na.pass)
   
   cm_train_c_b2 <- confusionMatrix(pred_train_c_b2, train_dat$replicate, positive = "yes")
   cm_test_c_b2 <- confusionMatrix(pred_test_c_b2, test_dat$replicate, positive = "yes")
@@ -289,12 +290,13 @@ for (i in 1:1) { # Outer Loop mit i = Iterationen
                                           number = 10,
                                           classProbs = TRUE,
                                           summaryFunction = twoClassSummary,
-                                          savePredictions = TRUE))
+                                          savePredictions = TRUE),
+                   na.action = na.pass)
   
   
   # Vorhersage anhand des trainierten Modells
-  pred_train_c_b3 <- predict(cart_b3, train_dat)
-  pred_test_c_b3 <- predict(cart_b3, test_dat)
+  pred_train_c_b3 <- predict(cart_b3, train_dat, na.action = na.pass)
+  pred_test_c_b3 <- predict(cart_b3, test_dat, na.action = na.pass)
   
   cm_train_c_b3 <- confusionMatrix(pred_train_c_b3, train_dat$replicate, positive = "yes")
   cm_test_c_b3 <- confusionMatrix(pred_test_c_b3, test_dat$replicate, positive = "yes")
@@ -322,12 +324,13 @@ for (i in 1:1) { # Outer Loop mit i = Iterationen
                                                 number = 10,
                                                 classProbs = TRUE,
                                                 summaryFunction = twoClassSummary,
-                                                savePredictions = TRUE))
+                                                savePredictions = TRUE),
+                         na.action = na.pass)
   
   
   # Vorhersage anhand des trainierten Modells
-  pred_train_c_b1_b2_b3 <- predict(cart_b1_b2_b3, train_dat)
-  pred_test_c_b1_b2_b3 <- predict(cart_b1_b2_b3, test_dat)
+  pred_train_c_b1_b2_b3 <- predict(cart_b1_b2_b3, train_dat, na.action = na.pass)
+  pred_test_c_b1_b2_b3 <- predict(cart_b1_b2_b3, test_dat, na.action = na.pass)
   
   cm_train_c_b1_b2_b3 <- confusionMatrix(pred_train_c_b1_b2_b3, train_dat$replicate, positive = "yes")
   cm_test_c_b1_b2_b3 <- confusionMatrix(pred_test_c_b1_b2_b3, test_dat$replicate, positive = "yes")
