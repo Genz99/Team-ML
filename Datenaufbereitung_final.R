@@ -1,4 +1,3 @@
-
 # _______________________________________________
 #
 # Packages laden
@@ -246,7 +245,6 @@ Präd_b1_b2_b3 <- names(data_final[!(names(data_final) %in% c("replicate", "stud
 
 data_final$study_title <- NULL # Titel entfernen
 data_corr <- data_final
-data_final <- na.omit(data_final) # nur noch Zeilen ohne NA
 
 
 # _______________________________________________
