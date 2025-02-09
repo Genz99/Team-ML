@@ -10,6 +10,8 @@ res_b2 <- NULL # b1 = Block; b2 = Block 2; b3 = Block 3, b1_b2_b3 = alle Blöcke
 res_b3 <- NULL
 res_b1_b2_b3 <- NULL
 
+coef_b1 <- NULL # Objekt für Koeffizienten 
+
 
 for (i in 1:100) { # Outer Loop 
   print(paste0(i, ". Iter"))
@@ -23,7 +25,7 @@ for (i in 1:100) { # Outer Loop
   train_dat <- (data_final[ trainIndex, ]) # Speichern der beiden Partitionen
   test_dat  <- (data_final[-trainIndex, ]) #  entfernt alle Missings
   
-  
+
   # Pre-Processing: Transformation der Daten nach Partitionierung um Data-Leakage zu vermeiden
   preProcValues_train <- preProcess(train_dat, method = c("knnImpute")) # Trainingsdaten: knn-Impute (gleichzeitig z-Standardisiert)
   train_dat <- predict(preProcValues_train, train_dat) # speichern der z-Standardisierten Trainingsdaten
@@ -74,6 +76,12 @@ for (i in 1:100) { # Outer Loop
                                 'Sensitivity' = c(mean(cm_train_b1$byClass['Sensitivity']), mean(cm_test_b1$byClass['Sensitivity'])),                   # BACC, Sen und Spe
                                 'Specificity' = c(mean(cm_train_b1$byClass['Specificity']), mean(cm_test_b1$byClass['Specificity']))))                  # definiert.
  
+  # Koeffizienten extrahieren
+  coefs <- as.numeric(as.matrix(coef(enet_b1$finalModel, s = enet_b1$bestTune$lambda)))  # Extrahieren der finalen Koeffizienten
+  
+  # Speichern der Koeffizienten in der Matrix
+  coef_b1 <- rbind(coef_b1, coefs)
+  
  
   #### Analyse für Block 2 analog zu der in Block 1 ####
   
@@ -368,6 +376,18 @@ for (i in 1:100) { # Outer Loop
 # Über die Iterationen gemittelte Ergebnisse-ENet für jeden Block
 #
 # ______________________________________________________________________________
+
+
+# Koeffizienten Block 1:
+coef_names <- coef(enet_b1$finalModel, s = enet_b1$bestTune$lambda)
+
+colnames(coef_matrix) <- coef_names@Dimnames[[1]]
+
+
+(coef_mean  <- exp(coef_matrix) %>% data.frame() %>% 
+    summarize_all(list(mean = ~mean(., na.rm = TRUE), 
+                       sd = ~sd(., na.rm = TRUE))) %>% 
+    round(., 2))
 
 
 # Block 1: 
