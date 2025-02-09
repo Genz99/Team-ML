@@ -1,3 +1,7 @@
+setwd("/Users/nicokruse/Documents/Uni/M.Sc. Psy/Semester III/Advanced Research Methods and Statistical Computing/Projekt_ML")
+# setwd("/Users/maria/OneDrive/Uni/Master/3. Semester/ARMS Seminar")
+# setwd("C:/Users/fiona/Master/ARMS/Team ML")
+
 # _______________________________________________
 #
 # Packages laden
@@ -67,6 +71,9 @@ data_final$citations_first_author[data_final$citations_first_author > 18734] <- 
 # suprising_results
 data_final$suprising_result <- as.numeric(data_pre$Surprising.result..O.)
 
+# conceptual_replications
+data_final$conceptual_replications <- data_pre$Internal.conceptual.replications..O.
+
 # reported_p_value (3 Kategorien)
 data_final$reported_p_value <- data_pre$Reported.P.value..O.
 
@@ -96,8 +103,8 @@ data_final$reported_p_value[data_final$reported_p_value == "prep = .95"] <- "0.0
 data_final$reported_p_value[data_final$reported_p_value == "prep = .97"] <- "0.007817689"
 data_final$reported_p_value[data_final$reported_p_value == "prep = .99"] <- "0.001002042"
 
-# "X" auf NA setzen
-data_final$reported_p_value[data_final$reported_p_value == "X"] <- "<.05"
+# Studien mit "X" auf NA setzen
+data_final$reported_p_value[data_final$reported_p_value == "X"] <- NA
 
 # Erstellen von 3 Kategorien
 data_final$reported_p_value[data_final$reported_p_value == "<.00001"] <- "<.01"
@@ -158,9 +165,6 @@ data_final$min_power_quotient <- data_pre$N..O./ data_pre$X80..power
 
 # effsize (umgewandelt in r)
 data_final$effsize <- data_pre$T_r..O.
-
-# conceptual_replications
-data_final$conceptual_replications <- data_pre$Internal.conceptual.replications..O.
 
 # Praediktorenblock 1
 Präd_b1 <- names(data_final[!(names(data_final) %in% c("replicate", "study_title"))])
@@ -246,6 +250,8 @@ Präd_b1_b2_b3 <- names(data_final[!(names(data_final) %in% c("replicate", "stud
 data_final$study_title <- NULL # Titel entfernen
 data_corr <- data_final
 
+# Studien mit NA in reported_p_value entfernen, da Imputieren nicht klappt
+data_final <- subset(data_final, data_final$reported_p_value != "NA")
 
 # _______________________________________________
 #
