@@ -377,19 +377,6 @@ for (i in 1:100) { # Outer Loop
 #
 # ______________________________________________________________________________
 
-
-# Koeffizienten Block 1:
-coef_names <- coef(enet_b1$finalModel, s = enet_b1$bestTune$lambda)
-
-colnames(coef_matrix) <- coef_names@Dimnames[[1]]
-
-
-(coef_mean  <- exp(coef_matrix) %>% data.frame() %>% 
-    summarize_all(list(mean = ~mean(., na.rm = TRUE), 
-                       sd = ~sd(., na.rm = TRUE))) %>% 
-    round(., 2))
-
-
 # Block 1: 
 (r_b1  <- res_b1 %>% data.frame() %>% 
     group_by(mod_b1) %>%
@@ -562,3 +549,83 @@ r$Mod <- c("Enet_b1", "Enet_b1","CART_b1","CART_b1",
 r <- r[, c(ncol(r), 1:(ncol(r) - 1))]
 
 print(r)
+
+#_______________________________________________________________________________
+#
+# Odds-Ratios; Block 1; 10-Fold E-Net
+#
+# ______________________________________________________________________________
+
+OR_b1 <- exp(coef_b1)
+coef_names <- coef(enet_b1$finalModel, s = enet_b1$bestTune$lambda)
+colnames(OR_b1) <- coef_names@Dimnames[[1]]
+rownames(OR_b1) <- NULL
+
+# Violinen Plot
+
+violin_data <- data.frame(OR_b1)
+rownames(violin_data) <- NULL
+
+violin_long <- violin_data %>% 
+  pivot_longer(cols = everything(), names_to = "Koeffizient", values_to = "OR")
+
+# Violin Plot
+ggplot(violin_long, aes(x = Koeffizient, y = OR)) +
+  geom_violin(fill = "#BA7F64", alpha = 0.5, adjust = 1, scale = 3) +  # Violin Plot mit Farbe
+  geom_point(size = 0.5, color = "black") +                     # Punkte für Mittelwerte
+  geom_hline(yintercept = 1, color = "black", linetype = "dashed", size = 0.5) +
+  # geom_boxplot(width = 0.1, color = "black", alpha = 0.5) +  # Boxplot hinzufügen
+  theme_minimal() +  # Schönes, minimalistisches Design
+  coord_flip() +  # Achsen drehen für bessere Lesbarkeit
+  scale_y_continuous(breaks = seq(0,6,1))
+labs(title = " ", x = "", y = " ") +
+  theme(axis.text = element_text(size = 12))  # Schriftgröße anpassen
+
+
+# Mean and SD
+df_OR <- NULL
+
+for (i in (1:ncol(OR_b1))) {
+  
+  Koeffizient <- colnames(OR_b1)
+  
+  Mean <- mean(OR_b1[,i])
+  
+  SD <- SD(OR_b1[,i])
+  
+  UP <- Mean + 1.96 * SD
+  
+  LOW <- Mean - 1.96 * SD
+  
+  df_OR <- data.frame(rbind(df_OR, rbind(c("Koeffizient" = Koeffizient[i],
+                                           "Mean" = round(Mean, digits = 2),
+                                           "SD" = round(SD, digits = 2), 
+                                           "UP" = round(UP, digits = 2),
+                                           "LOW" = round(LOW, digits = 2)))))
+}
+
+df_OR$Koeffizient <- c("Intercept", "2 bis 3 Autor*Innen", "mehr als 3 Autor*Innen",
+                       "Zitationen Erstautor*In", "Überraschende Ergebnisse", "Anzahl konzeptueller 
+                       Replikationen", 
+                       "p-Value < 0.5", "p-Value > 0.5", "Interaktionseffekt",
+                       "sonstiger Effekt", "min Power Quotient", "Effektgröße")
+
+df_OR$Mean <- as.numeric(df_OR$Mean)
+df_OR$SD <- as.numeric(df_OR$SD)
+df_OR$UP <- as.numeric(df_OR$UP)
+df_OR$LOW <- as.numeric(df_OR$LOW)
+
+
+# Plot
+ggplot(df_OR, aes(x = factor(Koeffizient, levels = Koeffizient), y = Mean)) +
+  geom_point(size = 2, color = "#BA7F64") +                     # Punkte für Mittelwerte
+  geom_hline(yintercept = 1, color = "black", linetype = "dashed", size = 0.5) +
+  geom_errorbar(aes(ymin = LOW, ymax = UP),       # Fehlerbalken für CIs
+                width = 0.2, color = "black") +
+  scale_y_continuous(breaks = seq(-2,4,1)) +
+  coord_flip() +  
+  # theme(text = element_text(size = 30)) +
+  theme(axis.text.x = element_text(size = 14)) +
+  theme_minimal() + #(panel.background = element_rect(fill = "#DDE3D6")) +
+  labs(title = "",
+       x = "", y = "Odds-Ratio")
