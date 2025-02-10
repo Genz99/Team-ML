@@ -571,15 +571,15 @@ violin_long <- violin_data %>%
 
 # Violin Plot
 ggplot(violin_long, aes(x = Koeffizient, y = OR)) +
-  geom_violin(fill = "#BA7F64", alpha = 0.5, adjust = 1, scale = 3) +  # Violin Plot mit Farbe
-  geom_point(size = 0.5, color = "black") +                     # Punkte für Mittelwerte
+  geom_violin(fill = "#BA7F64", alpha = 0.5, adjust = 1, scale = 3) +  
+  geom_point(size = 0.5, color = "black") +                     
   geom_hline(yintercept = 1, color = "black", linetype = "dashed", size = 0.5) +
-  # geom_boxplot(width = 0.1, color = "black", alpha = 0.5) +  # Boxplot hinzufügen
-  theme_minimal() +  # Schönes, minimalistisches Design
-  coord_flip() +  # Achsen drehen für bessere Lesbarkeit
+  # geom_boxplot(width = 0.1, color = "black", alpha = 0.5) +  
+  theme_minimal() +  
+  coord_flip() +  
   scale_y_continuous(breaks = seq(0,6,1))
 labs(title = " ", x = "", y = " ") +
-  theme(axis.text = element_text(size = 12))  # Schriftgröße anpassen
+  theme(axis.text = element_text(size = 12))  
 
 
 # Mean and SD
@@ -618,14 +618,14 @@ df_OR$LOW <- as.numeric(df_OR$LOW)
 
 # Plot
 ggplot(df_OR, aes(x = factor(Koeffizient, levels = Koeffizient), y = Mean)) +
-  geom_point(size = 2, color = "#BA7F64") +                     # Punkte für Mittelwerte
+  geom_point(size = 2, color = "#BA7F64") +                     
   geom_hline(yintercept = 1, color = "black", linetype = "dashed", size = 0.5) +
-  geom_errorbar(aes(ymin = LOW, ymax = UP),       # Fehlerbalken für CIs
+  geom_errorbar(aes(ymin = LOW, ymax = UP),       
                 width = 0.2, color = "black") +
   scale_y_continuous(breaks = seq(-2,4,1)) +
   coord_flip() +  
   # theme(text = element_text(size = 30)) +
   theme(axis.text.x = element_text(size = 14)) +
-  theme_minimal() + #(panel.background = element_rect(fill = "#DDE3D6")) +
+  theme_minimal() + 
   labs(title = "",
        x = "", y = "Odds-Ratio")
